@@ -1,0 +1,113 @@
+openapi: 3.0.3
+info:
+  title: Cafeteria API
+  version: 1.0.0
+paths:
+  /menu:
+    get:
+      tags: [Menu]
+      summary: Get all menu items
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuResponse'
+    post:
+      tags: [Menu]
+      summary: Add a new menu item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMenuItemRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItem'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /orders:
+    post:
+      tags: [Orders]
+      summary: Place a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+
+components:
+  schemas:
+    MenuResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+
+    MenuItem:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        price: { type: number, format: double }
+      required: [id, name, price]
+
+    CreateMenuItemRequest:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        price: { type: number, format: double, minimum: 0.01 }
+      required: [name, price]
+
+    ErrorResponse:
+      type: object
+      properties:
+        message: { type: string }
+        timestamp: { type: string, format: date-time }
+      required: [message, timestamp]
+
+    OrderRequest:
+      type: object
+      properties:
+        customerId: { type: string }
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemRequest'
+      required: [customerId, items]
+
+    OrderItemRequest:
+      type: object
+      properties:
+        menuItemId: { type: string, format: uuid }
+        quantity: { type: integer, format: int32 }
+      required: [menuItemId, quantity]
+
+    OrderResponse:
+      type: object
+      properties:
+        orderId: { type: string, format: uuid }
+        status: { type: string }
+        totalAmount: { type: number, format: double }
+        createdAt: { type: string, format: date-time }
+      required: [orderId, status, totalAmount, createdAt]
