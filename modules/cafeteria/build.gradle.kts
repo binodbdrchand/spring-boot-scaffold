@@ -132,3 +132,28 @@ tasks.register("generateContracts") {
         "generateJsonSchema2DataClass"
     )
 }
+
+// ============================================================
+// Hibernate schema generation
+// ============================================================
+
+tasks.register<JavaExec>("generateSchema") {
+    group = "database"
+    description = "Generate PostgreSQL DDL from JPA entities"
+
+    dependsOn("compileJava")
+
+    classpath = sourceSets.main.get().runtimeClasspath
+
+    mainClass.set(
+        "com.atlas.cafeteria.utils.SchemaGenerator"
+    )
+
+    args(
+        layout.buildDirectory
+            .file("generated/schema.sql")
+            .get()
+            .asFile
+            .absolutePath
+    )
+}
